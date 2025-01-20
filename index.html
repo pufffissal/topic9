@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Topic 9 Teszt</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background: #f4f4f9;
+            color: #333;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        h1 {
+            margin-top: 20px;
+            color: #4CAF50;
+        }
+
+        p {
+            text-align: center;
+            max-width: 600px;
+        }
+
+        #word-container {
+            font-size: 1.5rem;
+            margin: 20px 0;
+            padding: 10px 20px;
+            background: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        input[type="text"] {
+            padding: 10px;
+            font-size: 1rem;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            width: calc(100% - 140px);
+            max-width: 300px;
+            margin-right: 10px;
+        }
+
+        button {
+            padding: 10px 15px;
+            font-size: 1rem;
+            color: white;
+            background: #4CAF50;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+
+        button:hover {
+            background: #45A049;
+        }
+
+        .result {
+            margin-top: 20px;
+            font-size: 1.2rem;
+            color: #333;
+        }
+
+        .progress-bar {
+            width: 100%;
+            max-width: 400px;
+            height: 10px;
+            background: #e0e0e0;
+            border-radius: 5px;
+            margin: 20px 0;
+            overflow: hidden;
+        }
+
+        .progress {
+            height: 100%;
+            background: #4CAF50;
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+    </style>
+</head>
+<body>
+    <h1>Topic 9 Szóteszt (Asszem)</h1>
+    <p>Fordítsd le az angol szavakat magyarra pontosan! Ne hagyj extra szóközt! (Mert azért ennyire nem programozok jól.)</p>
+    <div id="word-container">...</div>
+
+    <div>
+        <input type="text" id="user-input" placeholder="Ide írd a fordítást..." />
+        <button type="button" onclick="checkAnswer()">Ellenőrzés</button>
+    </div>
+
+    <div class="progress-bar">
+        <div class="progress" id="progress-bar"></div>
+    </div>
+
+    <div class="result" id="result"></div>
+
+    <script>
+        const allWords = [
+        { hu: "above 10°C", en: "10fok felett" },
+        { hu: "below 10°C", en: "10fok alatt" },
+        { hu: "favourite season", en: "kedvenc évszak" },
+        { hu: "tulip", en: "tulipán" },
+        { hu: "snowdrop", en: "hóvirág" },
+        { hu: "hyacint", en: "jácint" },
+        { hu: "lilac", en: "orgona" },
+        { hu: "colourful", en: "színes" },
+        { hu: "Indian summer", en: "Indián nyár" },
+        { hu: "neither too hot nor too cold", en: "nem túl meleg sem hideg" },
+        { hu: "to melt", en: "olvadni" },
+        { hu: "frosty", en: "fagyos" },
+        { hu: "to grow leaves", en: "leveleket növeszt" },
+        { hu: "to skate", en: "korcsolyázni" },
+        { hu: "to bloom", en: "virágzik" },
+        { hu: "to sleigh", en: "szánkozni" },
+        { hu: "sledge", en: "szánkó" },
+        { hu: "bright", en: "fényes" },
+        { hu: "heavy rainstorm", en: "heves esőzés" },
+        { hu: "thunderstorm", en: "zivatar" },
+        { hu: "downpour", en: "felhőszakadás" },
+        { hu: "thunder", en: "menydörgés" },
+        { hu: "lightning", en: "villámlás" },
+        { hu: "to last", en: "valameddig tart" },
+        { hu: "seaside", en: "tengerpart" },
+        { hu: "to lie in the sun", en: "napozni" },
+        { hu: "to sail", en: "vitorlázni" },
+        { hu: "to boat", en: "hajózni" },
+        { hu: "to play beach volleyball", en: "strandlabdázni" },
+        { hu: "to play frisbee", en: "frizbizni" },
+        { hu: "bathing suit", en: "fürdőruha" },
+        { hu: "bikini", en: "bikini" },
+        { hu: "perhaps", en: "talán" },
+        { hu: "sunhat", en: "szalmakalap" },
+        { hu: "rainy", en: "esős" },
+        { hu: "cloudy", en: "felhős" },
+        { hu: "It's cold outside", en: "hideg van kint" },
+        { hu: "to become yellow", en: "sárgává válik (falevél)" },
+        { hu: "foggy", en: "ködös" },
+        { hu: "especially", en: "különösen" },
+        { hu: "frost", en: "fagy" },
+        { hu: "to hail", en: "jeges eső esik" },
+        { hu: "to sleet", en: "ónos eső esik" },
+        { hu: "milder", en: "enyhébb" },
+        { hu: "to build a snowman", en: "hóembert építeni" },
+        { hu: "changeable", en: "változékony" },
+        { hu: "gloves", en: "kesztyűk" },
+        { hu: "scarf", en: "sál" },
+        { hu: "sweater", en: "melegítő/pulóver" },
+        { hu: "thick coat", en: "vastag kabát" },
+        { hu: "winter boots", en: "téli csizma" },
+        { hu: "to dress up in layers", en: "rétegesen öltözni" },
+        { hu: "light dress", en: "lenge ruha" },
+        { hu: "sandals", en: "szandál" },
+        { hu: "slippers", en: "papucs" },
+        { hu: "flip-flops", en: "lábujjközös papucs" },
+        { hu: "tie", en: "nyakkendő" },
+        { hu: "suit", en: "öltöny" },
+        { hu: "jacket", en: "dzseki" },
+        { hu: "in different seasons", en: "más évszakban" },
+        { hu: "age factor", en: "életkori tényező" },
+        { hu: "blouse", en: "blúz" },
+        { hu: "skirt", en: "szoknya" },
+        { hu: "a pair of thights", en: "nejlonharisnya (vékony)" },
+        { hu: "stockings", en: "harisnya (vastag)" },
+        { hu: "fashionable", en: "divatos/stílusos" },
+        { hu: "hoodie", en: "kapucnis pulóver" },
+        { hu: "ear-ring", en: "fülbevaló" },
+        { hu: "bracelet", en: "karkötő" },
+        { hu: "necklace", en: "nyalklánc" },
+        { hu: "wrist", en: "csukló" },
+        ];
+
+        const words = allWords.sort(() => Math.random() - 0.5).slice(0, 10);
+        let currentWordIndex = 0;
+        let correctCount = 0;
+
+        function updateProgress() {
+            const progress = document.getElementById('progress-bar');
+            const percentage = ((currentWordIndex / words.length) * 100).toFixed(1);
+            progress.style.width = `${percentage}%`;
+        }
+
+        function loadWord() {
+            const wordContainer = document.getElementById('word-container');
+            wordContainer.textContent = `Fordítsd le: ${words[currentWordIndex].en}`;
+            updateProgress();
+        }
+
+        function checkAnswer() {
+            const userInput = document.getElementById('user-input').value.trim().toLowerCase();
+            const correctAnswer = words[currentWordIndex].hu.toLowerCase();
+
+            if (userInput === correctAnswer) {
+                correctCount++;
+                alert('Helyes! Szép munka!');
+            } else {
+                alert(`Hibás! A helyes válasz: "${correctAnswer}"`);
+            }
+
+            currentWordIndex++;
+            document.getElementById('user-input').value = '';
+
+            if (currentWordIndex < words.length) {
+                loadWord();
+            } else {
+                const result = document.getElementById('result');
+                result.textContent = `Eltaláltál ${correctCount} a ${words.length} szóból!`;
+                document.getElementById('word-container').textContent = 'Vége a tesztnek!';
+            }
+        }
+
+        loadWord();
+    </script>
+</body>
+</html>
